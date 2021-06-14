@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.widget.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import java.util.*
 
 class MainActivity : AppCompatActivity(), LocationListener {
 
@@ -24,12 +25,15 @@ class MainActivity : AppCompatActivity(), LocationListener {
     lateinit var btn_look: Button
     lateinit var locmgr: LocationManager
 
-    // about sharedPreferences
-    companion object {
-        val PREF_XMLFILE: String = "data"
-        val KEY_NUMBER: String = "number"
-        val KEY_NAME: String = "name"
-    }
+    var PREF_XMLFILE: String = "data"
+    var KEY_NUMBER: String = "number"
+    var KEY_NAME: String = "name"
+    var Latitude = 25.0
+    var Longitude = 121.0
+    var getLatitude = 0.0
+    var getLongitude = 0.0
+    var hour:Int = 21
+    var min:Int = 59
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -122,8 +126,10 @@ class MainActivity : AppCompatActivity(), LocationListener {
         msg.append(loc.provider)
         msg.append("\n緯度(latitude):  ")
         msg.append(loc.latitude.toString())
+        getLatitude = loc.latitude
         msg.append("\n經度(longitude): ")
         msg.append(loc.longitude.toString())
+        getLongitude = loc.longitude
         msg.append("\n高度(altitude):  ")
         msg.append(loc.altitude.toString())
         msg.append("\n")
@@ -131,8 +137,20 @@ class MainActivity : AppCompatActivity(), LocationListener {
     }
 
     private fun check() {
+        val times = Calendar.getInstance()
+
         if (et_number.getText().toString() == "" || et_name.getText().toString() == "") {
             Toast.makeText(this, "資料不得為空", Toast.LENGTH_LONG).show()
+        }
+        // 距離超出GPS原點2公尺
+        else if(Math.sqrt(Math.pow(getLatitude-Latitude, 2.0) + Math.pow(getLongitude-Longitude, 2.0)) >2 ) {
+            Toast.makeText(this, "簽到失敗, 因為你不在附近", Toast.LENGTH_LONG).show()
+        }
+        // 時間超出預設deadline
+        else if((Integer.parseInt(times.get(Calendar.HOUR_OF_DAY).toString())>hour ) ||
+                ((Integer.parseInt(times.get(Calendar.HOUR_OF_DAY).toString())==hour &&
+                  Integer.parseInt(times.get(Calendar.MINUTE).toString())>min))) {
+            Toast.makeText(this, "簽到失敗, 因為你遲到了", Toast.LENGTH_LONG).show()
         }
         else {
             // 儲存簽到資料
@@ -142,6 +160,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
             val intent = Intent()
             intent.setClass(this, showMyRecord::class.java)
             startActivity(intent)
+            finish()
         }
     }
 

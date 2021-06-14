@@ -22,17 +22,19 @@
         android:id="@+id/et_number"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:digits="0123456789"/>
+        android:digits="0123456789"
+        android:maxLength="8"/>
 
     // 姓名
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="請輸入姓名 : "/>
+        android:text="請輸入英文姓名(小寫) : "/>
     <EditText
         android:id="@+id/et_name"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:digits="abcdefghijklmnopqrstuvwxyz"/>
 
     // 2個button
     <LinearLayout
