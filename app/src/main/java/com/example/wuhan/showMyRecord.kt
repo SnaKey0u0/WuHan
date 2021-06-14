@@ -15,6 +15,10 @@ class showMyRecord : AppCompatActivity() {
     lateinit var tv_name: TextView
     lateinit var btn_back: Button
 
+    val PREF_XMLFILE: String = "data"
+    val KEY_NUMBER: String = "number"
+    val KEY_NAME: String = "name"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_show_my_record)
@@ -26,10 +30,10 @@ class showMyRecord : AppCompatActivity() {
         btn_back = findViewById(R.id.btn_back)
 
         // showData in data.xml
-        val pref = getSharedPreferences(MainActivity.PREF_XMLFILE, MODE_PRIVATE)
-        val pref_number = pref.getInt(MainActivity.KEY_NUMBER, 1)
+        val pref = getSharedPreferences(PREF_XMLFILE, MODE_PRIVATE)
+        val pref_number = pref.getInt(KEY_NUMBER, 1)
         tv_number.text = "" + pref_number
-        val pref_name = pref.getString(MainActivity.KEY_NAME, "1")
+        val pref_name = pref.getString(KEY_NAME, "1")
         tv_name.text = pref_name
 
         // showTime
@@ -46,11 +50,13 @@ class showMyRecord : AppCompatActivity() {
         finish()
     }
 
+    // 月要 + 1, 因為是從0~11
     private fun showTime(): String {
         val times = Calendar.getInstance()
         val msg = StringBuffer()
+        msg.append("你的簽到時間為 : ")
         msg.append(times.get(Calendar.YEAR).toString() + " / ")
-        msg.append(times.get(Calendar.MONTH).toString() + " / ")
+        msg.append((times.get(Calendar.MONTH) + 1 ).toString() + " / ")
         msg.append(times.get(Calendar.DAY_OF_MONTH).toString() + " / ")
         msg.append(times.get(Calendar.HOUR_OF_DAY).toString() + ":")
         msg.append(times.get(Calendar.MINUTE).toString() + ":")
