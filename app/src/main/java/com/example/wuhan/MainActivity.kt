@@ -1,6 +1,8 @@
 package com.example.wuhan
 
 import android.Manifest
+import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Criteria
 import android.location.Location
@@ -8,9 +10,7 @@ import android.location.LocationListener
 import android.location.LocationManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
+import android.widget.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
@@ -23,6 +23,13 @@ class MainActivity : AppCompatActivity(), LocationListener {
     lateinit var btn_check: Button
     lateinit var btn_look: Button
     lateinit var locmgr: LocationManager
+
+    // about sharedPreferences
+    companion object {
+        val PREF_XMLFILE: String = "data"
+        val KEY_NUMBER: String = "number"
+        val KEY_NAME: String = "name"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +48,19 @@ class MainActivity : AppCompatActivity(), LocationListener {
         } else {
             initLoc()
         }
+
+        // read sharedPreferences
+        val pref = getSharedPreferences(PREF_XMLFILE, MODE_PRIVATE)
+        val pref_number = pref.getInt(KEY_NUMBER, 1)
+        et_number?.setText("" + pref_number)
+        val pref_name = pref.getString(KEY_NAME, "1")
+        et_name?.setText(pref_name)
+
+        // when btn_check is clicked
+        btn_check.setOnClickListener { check() }
+
+        // when btn_look is clicked
+        btn_look.setOnClickListener { look() }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -97,17 +117,53 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
     private fun showLocation(loc: Location): String {
         val msg = StringBuffer()
-        msg.append("您目前位置為 => \n")
-        msg.append("定位提供者(Provider): ")
+        msg.append("您目前位置為 : \n")
+        msg.append("定位提供者(provider): ")
         msg.append(loc.provider)
-        msg.append("\n緯度(Latitude):  ")
+        msg.append("\n緯度(latitude):  ")
         msg.append(loc.latitude.toString())
-        msg.append("\n經度(Longitude): ")
+        msg.append("\n經度(longitude): ")
         msg.append(loc.longitude.toString())
-        msg.append("\n高度(Altitude):  ")
+        msg.append("\n高度(altitude):  ")
         msg.append(loc.altitude.toString())
         msg.append("\n")
         return msg.toString()
     }
 
+    private fun check() {
+        if (et_number.getText().toString() == "" || et_name.getText().toString() == "") {
+            Toast.makeText(this, "資料不得為空", Toast.LENGTH_LONG).show()
+        }
+        else {
+            // 儲存簽到資料
+            saveData()
+
+            //跳轉到顯示紀錄
+            val intent = Intent()
+            intent.setClass(this, showMyRecord::class.java)
+            startActivity(intent)
+        }
+    }
+
+    // saveData
+    private fun saveData() {
+        // saveData in data.xml
+        val pref: SharedPreferences = getSharedPreferences(PREF_XMLFILE, MODE_PRIVATE)
+
+        // use editor to put data
+        val editor: SharedPreferences.Editor = pref.edit()
+        val number: Int = Integer.parseInt(et_number?.text.toString())
+        val name: String = et_name?.text.toString()
+        editor.putInt(KEY_NUMBER, number)
+              .putString(KEY_NAME, name)
+              .commit()
+
+        // toast message
+        Toast.makeText(this, "儲存資料成功", Toast.LENGTH_LONG).show()
+    }
+
+    // ready to write by Snakey
+    private fun look() {
+
+    }
 }
