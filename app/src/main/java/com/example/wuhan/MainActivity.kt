@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
     var Longitude = 121.0
     var getLatitude = 0.0
     var getLongitude = 0.0
-    var hour:Int = 21
+    var hour:Int = 22
     var min:Int = 59
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
         // find id
         tv_loc = findViewById(R.id.tv_loc)
         et_number = findViewById(R.id.et_number)
-        et_name = findViewById(R.id.et_number)
+        et_name = findViewById(R.id.et_name)
         btn_check = findViewById(R.id.button1)
         btn_look = findViewById(R.id.button2)
 
@@ -132,6 +132,8 @@ class MainActivity : AppCompatActivity(), LocationListener {
         getLongitude = loc.longitude
         msg.append("\n高度(altitude):  ")
         msg.append(loc.altitude.toString())
+        msg.append("\n簽到經緯度為 " + Longitude.toString() + " / " + Latitude.toString())
+        msg.append("\n簽到dealine為今日的 " + hour.toString() + " : " + min.toString())
         msg.append("\n")
         return msg.toString()
     }
@@ -171,14 +173,14 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
         // use editor to put data
         val editor: SharedPreferences.Editor = pref.edit()
-        val number: Int = Integer.parseInt(et_number?.text.toString())
-        val name: String = et_name?.text.toString()
+        val number: Int = Integer.parseInt(et_number.getText().toString())
+        val name: String = et_name.getText().toString()
         editor.putInt(KEY_NUMBER, number)
               .putString(KEY_NAME, name)
               .commit()
 
         // toast message
-        Toast.makeText(this, "儲存資料成功", Toast.LENGTH_LONG).show()
+        Toast.makeText(this, "簽到成功", Toast.LENGTH_LONG).show()
     }
 
     // ready to write by Snakey
