@@ -198,13 +198,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
             pDialog.setTitle("資料不得為空")
         }
         // 距離超出GPS原點2公尺
-//        else if (Math.sqrt(
-//                Math.pow(
-//                    getLatitude - Latitude,
-//                    2.0
-//                ) + Math.pow(getLongitude - Longitude, 2.0)
-//            ) > 2
-//        ) {
+//        else if (Math.sqrt(Math.pow(getLatitude - Latitude,2.0) + Math.pow(getLongitude - Longitude, 2.0)) > 2) {
 //            pDialog.changeAlertType(SweetAlertDialog.ERROR_TYPE)
 //            pDialog.setTitle("簽到失敗, 因為你不在附近")
 //        }
