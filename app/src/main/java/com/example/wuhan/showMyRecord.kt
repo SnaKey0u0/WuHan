@@ -25,7 +25,7 @@ class showMyRecord : AppCompatActivity() {
     lateinit var btnCheckByTeacher: Button
     lateinit var editor: SharedPreferences
     private lateinit var data: SignUpRecord
-    private val baseUrl = "https://a540f982cba6.ngrok.io/"
+    private val baseUrl = "https://99be04669f0c.ngrok.io"
     private val retrofitManager = Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(
         GsonConverterFactory.create()
     ).build()

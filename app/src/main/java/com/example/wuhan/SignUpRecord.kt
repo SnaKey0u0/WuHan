@@ -14,4 +14,8 @@ class SignUpRecord {
         this.location = location
         this.time = time
     }
+
+    override fun toString(): String {
+        return "SignUpRecord(name='$name', id='$id', phone='$phone', location='$location', time='$time')"
+    }
 }

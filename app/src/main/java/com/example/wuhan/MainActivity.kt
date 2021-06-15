@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
     var hour: Int = 22
     var min: Int = 59
 
-    private val baseUrl = "https://a540f982cba6.ngrok.io/"
+    private val baseUrl = "https://99be04669f0c.ngrok.io"
     private val retrofitManager = Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(
         GsonConverterFactory.create()
     ).build()
@@ -94,7 +94,9 @@ class MainActivity : AppCompatActivity(), LocationListener {
         val pref_number = pref.getString(KEY_NUMBER, "")
         et_number?.setText(pref_number)
         val pref_name = pref.getString(KEY_NAME, "")
+        val pref_phone = pref.getString("phone", "")
         et_name?.setText(pref_name)
+        et_phone?.setText(pref_phone)
 
         // when btn_check is clicked
         btn_check.setOnClickListener { check() }
@@ -165,20 +167,20 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
     private fun showLocation(loc: Location): String {
         val msg = StringBuffer()
-        msg.append("您目前位置為 : \n")
-        msg.append("定位提供者(provider): ")
-        msg.append(loc.provider)
-        msg.append("\n緯度(latitude):  ")
+//        msg.append("您目前位置為 : \n")
+//        msg.append("定位提供者(provider): ")
+//        msg.append(loc.provider)
+//        msg.append("\n緯度(latitude):  ")
         msg.append(loc.latitude.toString())
         getLatitude = loc.latitude
-        msg.append("\n經度(longitude): ")
-        msg.append(loc.longitude.toString())
+//        msg.append("\n經度(longitude): ")
+        msg.append(" , " + loc.longitude.toString())
         getLongitude = loc.longitude
-        msg.append("\n高度(altitude):  ")
-        msg.append(loc.altitude.toString())
-        msg.append("\n簽到經緯度為 " + Longitude.toString() + " / " + Latitude.toString())
-        msg.append("\n簽到dealine為今日的 " + hour.toString() + " : " + min.toString())
-        msg.append("\n")
+//        msg.append("\n高度(altitude):  ")
+//        msg.append(loc.altitude.toString())
+//        msg.append(Longitude.toString() + " , " + Latitude.toString())
+//        msg.append("\n簽到dealine為今日的 " + hour.toString() + " : " + min.toString())
+//        msg.append("\n")
         return msg.toString()
     }
 
@@ -196,16 +198,16 @@ class MainActivity : AppCompatActivity(), LocationListener {
             pDialog.setTitle("資料不得為空")
         }
         // 距離超出GPS原點2公尺
-        else if (Math.sqrt(
-                Math.pow(
-                    getLatitude - Latitude,
-                    2.0
-                ) + Math.pow(getLongitude - Longitude, 2.0)
-            ) > 2
-        ) {
-            pDialog.changeAlertType(SweetAlertDialog.ERROR_TYPE)
-            pDialog.setTitle("簽到失敗, 因為你不在附近")
-        }
+//        else if (Math.sqrt(
+//                Math.pow(
+//                    getLatitude - Latitude,
+//                    2.0
+//                ) + Math.pow(getLongitude - Longitude, 2.0)
+//            ) > 2
+//        ) {
+//            pDialog.changeAlertType(SweetAlertDialog.ERROR_TYPE)
+//            pDialog.setTitle("簽到失敗, 因為你不在附近")
+//        }
         // 時間超出預設deadline
         else if ((Integer.parseInt(times.get(Calendar.HOUR_OF_DAY).toString()) > hour) ||
             ((Integer.parseInt(times.get(Calendar.HOUR_OF_DAY).toString()) == hour &&
@@ -216,7 +218,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
         } else {
             // 儲存簽到資料
             var c = Calendar.getInstance()
-            val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm")
             saveData(c)
             //TODO:location=經度+ , +緯度
             //TODO:time=時間轉字串 google -> simpleFormatter yyyy-MM-dd hh:mm:ss
@@ -228,6 +230,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
                 strLoc,
                 formatter.format(c.time)
             )
+            Toast.makeText(this@MainActivity, data.toString(), Toast.LENGTH_SHORT).show()
             retrofitService.signUp(data).enqueue(object : Callback<String> {
                 override fun onResponse(call: Call<String>, response: Response<String>) {
                     if (response.isSuccessful) {
@@ -257,7 +260,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
         val name: String = et_name.getText().toString()
         val phone: String = et_phone.getText().toString()
         //TODO:紀錄地點與簽到時間
-        val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm")
         editor.putString(KEY_NUMBER, number)
             .putString(KEY_NAME, name)
             .putString(KEY_PHONE, phone)
