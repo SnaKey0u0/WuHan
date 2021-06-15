@@ -55,10 +55,9 @@ class showMyRecord : AppCompatActivity() {
         val year = c.get(Calendar.YEAR)
         val month = c.get(Calendar.MONTH)
         val day = c.get(Calendar.DAY_OF_MONTH)
-
         btn_chooseDate.setOnClickListener {
             val dpd = DatePickerDialog(this, DatePickerDialog.OnDateSetListener{view, mYear, mMonth, mDay ->
-                tv_date.setText("" + mYear + "-" + mMonth + "-" + mDay)
+                tv_date.setText("" + mYear + "-" + (mMonth+1) + "-" + mDay)
             } , year, month, day)
             dpd.show()
         }
