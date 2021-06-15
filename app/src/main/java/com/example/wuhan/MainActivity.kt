@@ -23,7 +23,7 @@ import java.util.*
 class MainActivity : AppCompatActivity(), LocationListener {
 
     // variable
-    lateinit var tv_loc: TextView
+    //lateinit var tv_loc: TextView
     lateinit var et_number: EditText
     lateinit var et_name: EditText
     lateinit var btn_check: Button
@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
         setContentView(R.layout.activity_main)
 
         // find id
-        tv_loc = findViewById(R.id.tv_loc)
+        //tv_loc = findViewById(R.id.tv_loc)
         et_number = findViewById(R.id.et_number)
         et_name = findViewById(R.id.et_name)
         btn_check = findViewById(R.id.button1)
@@ -82,7 +82,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
         val pref = getSharedPreferences(PREF_XMLFILE, MODE_PRIVATE)
         val pref_number = pref.getInt(KEY_NUMBER, 1)
         et_number?.setText("" + pref_number)
-        val pref_name = pref.getString(KEY_NAME, "1")
+        val pref_name = pref.getString(KEY_NAME, "")
         et_name?.setText(pref_name)
 
         // when btn_check is clicked
@@ -114,11 +114,11 @@ class MainActivity : AppCompatActivity(), LocationListener {
         } catch (e: SecurityException) {
         }
 
-        if (loc != null) {
-            tv_loc.text = showLocation(loc)
-        } else {
-            tv_loc.text = "cannot get location!"
-        }
+//        if (loc != null) {
+//            tv_loc.text = showLocation(loc)
+//        } else {
+//            tv_loc.text = "cannot get location!"
+//        }
 
         val criteria = Criteria()
         criteria.accuracy = Criteria.ACCURACY_FINE
@@ -139,7 +139,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
     }
 
     override fun onLocationChanged(loc: Location) {
-        tv_loc.text = showLocation(loc)
+        //tv_loc.text = showLocation(loc)
     }
 
     override fun onProviderEnabled(provider: String) {
