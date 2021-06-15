@@ -17,6 +17,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.google.android.material.textfield.TextInputEditText
+import com.google.gson.GsonBuilder
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -49,9 +50,13 @@ class MainActivity : AppCompatActivity(), LocationListener {
     var min: Int = 59
 
     private val baseUrl = "https://99be04669f0c.ngrok.io"
+    var gson = GsonBuilder()
+        .setLenient()
+        .create()
     private val retrofitManager = Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(
-        GsonConverterFactory.create()
+        GsonConverterFactory.create(gson)
     ).build()
+
     private val retrofitService = retrofitManager.create(RetrofitService::class.java)
     private lateinit var btnCheck: Button
     private lateinit var btnSignUp: Button
@@ -192,8 +197,9 @@ class MainActivity : AppCompatActivity(), LocationListener {
         pDialog.show()
 
         val times = Calendar.getInstance()
-
-        if (et_number.getText().toString() == "" || et_name.getText().toString() == "") {
+        if (et_number.getText().toString() == "" || et_name.getText()
+                .toString() == "" || et_phone.getText().toString() == ""
+        ) {
             pDialog.changeAlertType(SweetAlertDialog.ERROR_TYPE)
             pDialog.setTitle("資料不得為空")
         }
@@ -214,15 +220,11 @@ class MainActivity : AppCompatActivity(), LocationListener {
                     Integer.parseInt(times.get(Calendar.MINUTE).toString()) > min))
         ) {
             pDialog.changeAlertType(SweetAlertDialog.ERROR_TYPE)
-            pDialog.setTitle("簽到失敗, 因為你遲到了")
+            pDialog.titleText = "簽到失敗, 因為你遲到了"
         } else {
             // 儲存簽到資料
             var c = Calendar.getInstance()
             val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm")
-            saveData(c)
-            //TODO:location=經度+ , +緯度
-            //TODO:time=時間轉字串 google -> simpleFormatter yyyy-MM-dd hh:mm:ss
-
             data = SignUpRecord(
                 et_name.getText().toString(),
                 et_number.getText().toString(),
@@ -230,20 +232,31 @@ class MainActivity : AppCompatActivity(), LocationListener {
                 strLoc,
                 formatter.format(c.time)
             )
-            Toast.makeText(this@MainActivity, data.toString(), Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@MainActivity, data.toString(), Toast.LENGTH_SHORT)
+                .show()
             retrofitService.signUp(data).enqueue(object : Callback<String> {
                 override fun onResponse(call: Call<String>, response: Response<String>) {
+                    Toast.makeText(this@MainActivity, ""+response.code(), Toast.LENGTH_SHORT)
+                        .show()
                     if (response.isSuccessful) {
                         pDialog.changeAlertType(SweetAlertDialog.SUCCESS_TYPE)
+                        pDialog.titleText = "成功簽到"
+                        saveData(c)
                     } else {
-                        pDialog.changeAlertType(SweetAlertDialog.ERROR_TYPE)
-                        pDialog.setTitle(response.body())
+                        if (response.code() == 429) {
+                            pDialog.changeAlertType(SweetAlertDialog.ERROR_TYPE)
+                            pDialog.titleText = "今日已簽到過"
+                        } else {
+                            pDialog.changeAlertType(SweetAlertDialog.ERROR_TYPE)
+                            pDialog.titleText = "伺服器錯誤，請稍後再試"
+                        }
                     }
                 }
 
                 override fun onFailure(call: Call<String>, t: Throwable) {
                     pDialog.changeAlertType(SweetAlertDialog.ERROR_TYPE)
-                    pDialog.setTitle("連線失敗，請稍後再試")
+                    pDialog.titleText = "連線錯誤，請稍後再試"
+                    pDialog.contentText = t.message
                 }
             })
         }
@@ -259,7 +272,6 @@ class MainActivity : AppCompatActivity(), LocationListener {
         val number: String = et_number.getText().toString()
         val name: String = et_name.getText().toString()
         val phone: String = et_phone.getText().toString()
-        //TODO:紀錄地點與簽到時間
         val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm")
         editor.putString(KEY_NUMBER, number)
             .putString(KEY_NAME, name)
@@ -269,30 +281,5 @@ class MainActivity : AppCompatActivity(), LocationListener {
             .apply()
         // toast message
 //        Toast.makeText(this, "簽到成功", Toast.LENGTH_LONG).show()
-    }
-
-    // ready to write by Snakey
-    private fun look() {
-        data = SignUpRecord("1", "1", "1", "1", "1")
-        retrofitService.signUp(data).enqueue(object : Callback<String> {
-            override fun onResponse(call: Call<String>, response: Response<String>) {
-                if (response.isSuccessful) {
-                    //TODO:recyclerView
-                } else {
-                    Toast.makeText(this@MainActivity, response.body(), Toast.LENGTH_SHORT)
-                        .show()
-                }
-            }
-
-            override fun onFailure(call: Call<String>, t: Throwable) {
-                Toast.makeText(this@MainActivity, "連線失敗，請稍後再試", Toast.LENGTH_SHORT)
-                    .show()
-            }
-        })
-    }
-
-
-    private fun postData() {
-
     }
 }

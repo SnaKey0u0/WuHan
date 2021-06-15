@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -55,41 +56,51 @@
     <!--        android:text="back"-->
     <!--        android:textAllCaps="false" />-->
 
-
-    <LinearLayout
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/checkByStudent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:text="學生"
+        app:layout_constraintEnd_toStartOf="@+id/checkByTeacher"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
-            android:id="@+id/checkByStudent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="學生"/>
+    <Button
+        android:id="@+id/btn_chooseDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="選擇日期"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/checkByTeacher"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
-            android:id="@+id/checkByTeacher"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="老師"/>
-
-        <Button
-            android:id="@+id/btn_chooseDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="選擇日期"/>
-
-    </LinearLayout>
+    <Button
+        android:id="@+id/checkByTeacher"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="老師"
+        app:layout_constraintEnd_toStartOf="@+id/btn_chooseDate"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/checkByStudent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tv_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text=""/>
+        android:gravity="center"
+        android:text="請選擇日期"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/checkByTeacher" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/myRecycler"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/tv_date"
+        tools:layout_editor_absoluteX="16dp" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

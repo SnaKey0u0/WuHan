@@ -5,9 +5,13 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
@@ -50,17 +54,28 @@ class showMyRecord : AppCompatActivity() {
         btnCheckByTeacher.setOnClickListener { getTeacher() }
 
 
-
         val c = Calendar.getInstance()
         val year = c.get(Calendar.YEAR)
         val month = c.get(Calendar.MONTH)
         val day = c.get(Calendar.DAY_OF_MONTH)
         btn_chooseDate.setOnClickListener {
-            val dpd = DatePickerDialog(this, DatePickerDialog.OnDateSetListener{view, mYear, mMonth, mDay ->
-                tv_date.setText("" + mYear + "-" + (mMonth+1) + "-" + mDay)
-            } , year, month, day)
+            val dpd = DatePickerDialog(
+                this,
+                DatePickerDialog.OnDateSetListener { view, mYear, mMonth, mDay ->
+                    tv_date.setText(
+                        "" + mYear + "-" + String.format(
+                            "%02d",
+                            mMonth + 1
+                        ) + "-" + String.format("%02d", mDay)
+                    )
+                },
+                year,
+                month,
+                day
+            )
             dpd.show()
         }
+
 //        // find id
 //        tv_time = findViewById(R.id.tv_time)
 //        tv_number = findViewById(R.id.tv_number)
@@ -103,6 +118,8 @@ class showMyRecord : AppCompatActivity() {
 //        return msg.toString()
 //    }
     private fun getStudent() {
+        Toast.makeText(this@showMyRecord, "學生僅能查看今日的簽到記錄", Toast.LENGTH_SHORT)
+            .show()
         var name: String? = editor.getString("name", "無")
         var phone: String? = editor.getString("phone", "無")
         var number: String? = editor.getString("number", "無")
@@ -110,24 +127,23 @@ class showMyRecord : AppCompatActivity() {
         var time: String? = editor.getString("time", "無")
 
         if (name == null) {
-            name = ""
+            name = "無"
         }
         if (phone == null) {
-            phone = ""
+            phone = "無"
         }
         if (number == null) {
-            number = ""
+            number = "無"
         }
         if (location == null) {
-            location = ""
+            location = "無"
         }
         if (time == null) {
-            time = ""
+            time = "無"
         }
 
-        data = SignUpRecord("name", "number", "phone", "location", "time")
+        data = SignUpRecord(name, number, phone, location, time)
         var record: MutableList<SignUpRecord> = mutableListOf()
-        record.add(data)
         record.add(data)
         var linearLayoutManager: LinearLayoutManager
         linearLayoutManager = LinearLayoutManager(this)
@@ -138,20 +154,40 @@ class showMyRecord : AppCompatActivity() {
     }
 
     private fun getTeacher() {
-//        retrofitService.checkByTeacher(data).enqueue(object : Callback<String> {
-//            override fun onResponse(call: Call<String>, response: Response<String>) {
-//                if (response.isSuccessful) {
-//                    //TODO:recyclerView
-//                } else {
-//                    Toast.makeText(this@showMyRecord, response.body(), Toast.LENGTH_SHORT)
-//                        .show()
-//                }
-//            }
-//
-//            override fun onFailure(call: Call<String>, t: Throwable) {
-//                Toast.makeText(this@showMyRecord, "連線失敗，請稍後再試", Toast.LENGTH_SHORT)
-//                    .show()
-//            }
-//        })
+        if (tv_date.getText().toString().equals("請選擇日期")) {
+            Toast.makeText(this@showMyRecord, "請先選擇欲查詢日期", Toast.LENGTH_SHORT)
+                .show()
+        } else {
+            retrofitService.checkByTeacher(tv_date.getText().toString())
+                .enqueue(object : Callback<List<SignUpRecord>> {
+                    override fun onResponse(
+                        call: Call<List<SignUpRecord>>,
+                        response: Response<List<SignUpRecord>>
+                    ) {
+                        if (response.isSuccessful) {
+                            Toast.makeText(
+                                this@showMyRecord,
+                                "老師可查看當日所有學生的簽到情形",
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                            var linearLayoutManager: LinearLayoutManager
+                            linearLayoutManager = LinearLayoutManager(this@showMyRecord)
+                            myRecycler.layoutManager = linearLayoutManager
+                            myRecycler.adapter =
+                                response.body()?.let { checkAdapter(this@showMyRecord, it) }
+                        } else {
+                            Toast.makeText(this@showMyRecord, "伺服器錯誤，請稍後再試", Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                    }
+
+                    override fun onFailure(call: Call<List<SignUpRecord>>, t: Throwable) {
+                        Toast.makeText(this@showMyRecord, "連線錯誤，請稍後再試", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                })
+        }
+
     }
 }

@@ -10,7 +10,7 @@ interface RetrofitService {
 
     @GET("/checkByTeacher")
     fun checkByTeacher(
-        @Query("userId") studentId: String
+        @Query("day") time: String
     ): Call<List<SignUpRecord>>
 
 
