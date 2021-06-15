@@ -1,13 +1,16 @@
 package com.example.wuhan
 
+import android.app.DatePickerDialog
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.*
 
 class showMyRecord : AppCompatActivity() {
 
@@ -20,6 +23,8 @@ class showMyRecord : AppCompatActivity() {
 //    val PREF_XMLFILE: String = "data"
 //    val KEY_NUMBER: String = "number"
 //    val KEY_NAME: String = "name"
+    lateinit var tv_date: TextView
+    lateinit var btn_chooseDate: Button
     lateinit var myRecycler: RecyclerView
     lateinit var btnCheckByStudent: Button
     lateinit var btnCheckByTeacher: Button
@@ -38,9 +43,25 @@ class showMyRecord : AppCompatActivity() {
         myRecycler = findViewById(R.id.myRecycler)
         btnCheckByStudent = findViewById(R.id.checkByStudent)
         btnCheckByTeacher = findViewById(R.id.checkByTeacher)
+        tv_date = findViewById(R.id.tv_date)
+        btn_chooseDate = findViewById(R.id.btn_chooseDate)
 
         btnCheckByStudent.setOnClickListener { getStudent() }
         btnCheckByTeacher.setOnClickListener { getTeacher() }
+
+
+
+        val c = Calendar.getInstance()
+        val year = c.get(Calendar.YEAR)
+        val month = c.get(Calendar.MONTH)
+        val day = c.get(Calendar.DAY_OF_MONTH)
+
+        btn_chooseDate.setOnClickListener {
+            val dpd = DatePickerDialog(this, DatePickerDialog.OnDateSetListener{view, mYear, mMonth, mDay ->
+                tv_date.setText("" + mYear + "-" + mMonth + "-" + mDay)
+            } , year, month, day)
+            dpd.show()
+        }
 //        // find id
 //        tv_time = findViewById(R.id.tv_time)
 //        tv_number = findViewById(R.id.tv_number)
