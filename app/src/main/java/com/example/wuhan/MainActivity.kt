@@ -8,24 +8,31 @@ import android.location.Criteria
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import cn.pedant.SweetAlert.SweetAlertDialog
+import com.google.android.material.textfield.TextInputEditText
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.text.SimpleDateFormat
 import java.util.*
+
 
 class MainActivity : AppCompatActivity(), LocationListener {
 
     // variable
     //lateinit var tv_loc: TextView
-    lateinit var et_number: EditText
-    lateinit var et_name: EditText
+    lateinit var et_number: TextInputEditText
+    lateinit var et_name: TextInputEditText
+    lateinit var et_phone: TextInputEditText
     lateinit var btn_check: Button
     lateinit var btn_look: Button
     lateinit var locmgr: LocationManager
@@ -33,6 +40,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
     var PREF_XMLFILE: String = "data"
     var KEY_NUMBER: String = "number"
     var KEY_NAME: String = "name"
+    var KEY_PHONE: String = "phone"
     var Latitude = 25.0
     var Longitude = 121.0
     var getLatitude = 0.0
@@ -48,7 +56,9 @@ class MainActivity : AppCompatActivity(), LocationListener {
     private lateinit var btnCheck: Button
     private lateinit var btnSignUp: Button
     private lateinit var data: SignUpRecord
+    private lateinit var strLoc: String
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -57,6 +67,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
         //tv_loc = findViewById(R.id.tv_loc)
         et_number = findViewById(R.id.et_number)
         et_name = findViewById(R.id.et_name)
+        et_phone = findViewById(R.id.et_phone)
         btn_check = findViewById(R.id.button1)
         btn_look = findViewById(R.id.button2)
 
@@ -80,8 +91,8 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
         // read sharedPreferences
         val pref = getSharedPreferences(PREF_XMLFILE, MODE_PRIVATE)
-        val pref_number = pref.getInt(KEY_NUMBER, 1)
-        et_number?.setText("" + pref_number)
+        val pref_number = pref.getString(KEY_NUMBER, "")
+        et_number?.setText(pref_number)
         val pref_name = pref.getString(KEY_NAME, "")
         et_name?.setText(pref_name)
 
@@ -89,7 +100,11 @@ class MainActivity : AppCompatActivity(), LocationListener {
         btn_check.setOnClickListener { check() }
 
         // when btn_look is clicked
-        btn_look.setOnClickListener { look() }
+        btn_look.setOnClickListener {
+            val intent = Intent()
+            intent.setClass(this, showMyRecord::class.java)
+            startActivity(intent)
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -114,11 +129,11 @@ class MainActivity : AppCompatActivity(), LocationListener {
         } catch (e: SecurityException) {
         }
 
-//        if (loc != null) {
-//            tv_loc.text = showLocation(loc)
-//        } else {
-//            tv_loc.text = "cannot get location!"
-//        }
+        if (loc != null) {
+            strLoc = showLocation(loc)
+        } else {
+            strLoc = "cannot get location!"
+        }
 
         val criteria = Criteria()
         criteria.accuracy = Criteria.ACCURACY_FINE
@@ -139,7 +154,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
     }
 
     override fun onLocationChanged(loc: Location) {
-        //tv_loc.text = showLocation(loc)
+        strLoc = showLocation(loc)
     }
 
     override fun onProviderEnabled(provider: String) {
@@ -167,11 +182,18 @@ class MainActivity : AppCompatActivity(), LocationListener {
         return msg.toString()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun check() {
+        val pDialog = SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE)
+        pDialog.titleText = "簽到中"
+        pDialog.setCancelable(false)
+        pDialog.show()
+
         val times = Calendar.getInstance()
 
         if (et_number.getText().toString() == "" || et_name.getText().toString() == "") {
-            Toast.makeText(this, "資料不得為空", Toast.LENGTH_LONG).show()
+            pDialog.changeAlertType(SweetAlertDialog.ERROR_TYPE)
+            pDialog.setTitle("資料不得為空")
         }
         // 距離超出GPS原點2公尺
         else if (Math.sqrt(
@@ -181,41 +203,69 @@ class MainActivity : AppCompatActivity(), LocationListener {
                 ) + Math.pow(getLongitude - Longitude, 2.0)
             ) > 2
         ) {
-            Toast.makeText(this, "簽到失敗, 因為你不在附近", Toast.LENGTH_LONG).show()
+            pDialog.changeAlertType(SweetAlertDialog.ERROR_TYPE)
+            pDialog.setTitle("簽到失敗, 因為你不在附近")
         }
         // 時間超出預設deadline
         else if ((Integer.parseInt(times.get(Calendar.HOUR_OF_DAY).toString()) > hour) ||
             ((Integer.parseInt(times.get(Calendar.HOUR_OF_DAY).toString()) == hour &&
                     Integer.parseInt(times.get(Calendar.MINUTE).toString()) > min))
         ) {
-            Toast.makeText(this, "簽到失敗, 因為你遲到了", Toast.LENGTH_LONG).show()
+            pDialog.changeAlertType(SweetAlertDialog.ERROR_TYPE)
+            pDialog.setTitle("簽到失敗, 因為你遲到了")
         } else {
             // 儲存簽到資料
-            saveData()
+            var c = Calendar.getInstance()
+            val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            saveData(c)
+            //TODO:location=經度+ , +緯度
+            //TODO:time=時間轉字串 google -> simpleFormatter yyyy-MM-dd hh:mm:ss
 
-            //跳轉到顯示紀錄
-            val intent = Intent()
-            intent.setClass(this, showMyRecord::class.java)
-            startActivity(intent)
-            finish()
+            data = SignUpRecord(
+                et_name.getText().toString(),
+                et_number.getText().toString(),
+                et_phone.getText().toString(),
+                strLoc,
+                formatter.format(c.time)
+            )
+            retrofitService.signUp(data).enqueue(object : Callback<String> {
+                override fun onResponse(call: Call<String>, response: Response<String>) {
+                    if (response.isSuccessful) {
+                        pDialog.changeAlertType(SweetAlertDialog.SUCCESS_TYPE)
+                    } else {
+                        pDialog.changeAlertType(SweetAlertDialog.ERROR_TYPE)
+                        pDialog.setTitle(response.body())
+                    }
+                }
+
+                override fun onFailure(call: Call<String>, t: Throwable) {
+                    pDialog.changeAlertType(SweetAlertDialog.ERROR_TYPE)
+                    pDialog.setTitle("連線失敗，請稍後再試")
+                }
+            })
         }
     }
 
     // saveData
-    private fun saveData() {
+    private fun saveData(c: Calendar) {
         // saveData in data.xml
         val pref: SharedPreferences = getSharedPreferences(PREF_XMLFILE, MODE_PRIVATE)
 
         // use editor to put data
         val editor: SharedPreferences.Editor = pref.edit()
-        val number: Int = Integer.parseInt(et_number.getText().toString())
+        val number: String = et_number.getText().toString()
         val name: String = et_name.getText().toString()
-        editor.putInt(KEY_NUMBER, number)
+        val phone: String = et_phone.getText().toString()
+        //TODO:紀錄地點與簽到時間
+        val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        editor.putString(KEY_NUMBER, number)
             .putString(KEY_NAME, name)
+            .putString(KEY_PHONE, phone)
+            .putString("location", strLoc)
+            .putString("time", formatter.format(c.time))
             .apply()
-
         // toast message
-        Toast.makeText(this, "簽到成功", Toast.LENGTH_LONG).show()
+//        Toast.makeText(this, "簽到成功", Toast.LENGTH_LONG).show()
     }
 
     // ready to write by Snakey
@@ -240,5 +290,6 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
 
     private fun postData() {
+
     }
 }

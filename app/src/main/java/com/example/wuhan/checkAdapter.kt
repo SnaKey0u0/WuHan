@@ -6,9 +6,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class checkAdapter : RecyclerView.Adapter<checkAdapter.viewHolder>() {
-
-    var records = listOf<SignUpRecord>()
+class checkAdapter(
+    private val context: showMyRecord,
+    private var records: List<SignUpRecord>
+) : RecyclerView.Adapter<checkAdapter.viewHolder>() {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): viewHolder {
@@ -30,7 +31,7 @@ class checkAdapter : RecyclerView.Adapter<checkAdapter.viewHolder>() {
     }
 
     //更新資料用
-    fun updateList(list: ArrayList<SignUpRecord>) {
+    fun updateList(list: List<SignUpRecord>) {
         records = list
     }
 

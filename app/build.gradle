@@ -47,4 +47,6 @@ dependencies {
     // OkHttp3
     implementation 'com.squareup.okhttp3:okhttp:3.14.9'
     implementation 'com.squareup.retrofit2:converter-gson:2.7.2'
+
+    implementation 'com.github.f0ris.sweetalert:library:1.5.6'
 }
