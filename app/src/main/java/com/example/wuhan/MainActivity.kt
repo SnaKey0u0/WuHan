@@ -8,17 +8,17 @@ import android.location.Criteria
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import java.util.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.*
 
 class MainActivity : AppCompatActivity(), LocationListener {
 
@@ -37,10 +37,10 @@ class MainActivity : AppCompatActivity(), LocationListener {
     var Longitude = 121.0
     var getLatitude = 0.0
     var getLongitude = 0.0
-    var hour:Int = 22
-    var min:Int = 59
-  
-    private val baseUrl = "http://domainName/api/"
+    var hour: Int = 22
+    var min: Int = 59
+
+    private val baseUrl = "https://a540f982cba6.ngrok.io/"
     private val retrofitManager = Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(
         GsonConverterFactory.create()
     ).build()
@@ -61,8 +61,19 @@ class MainActivity : AppCompatActivity(), LocationListener {
         btn_look = findViewById(R.id.button2)
 
         // about location
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION), 1)
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ),
+                1
+            )
         } else {
             initLoc()
         }
@@ -81,7 +92,11 @@ class MainActivity : AppCompatActivity(), LocationListener {
         btn_look.setOnClickListener { look() }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
             initLoc()
@@ -159,16 +174,22 @@ class MainActivity : AppCompatActivity(), LocationListener {
             Toast.makeText(this, "資料不得為空", Toast.LENGTH_LONG).show()
         }
         // 距離超出GPS原點2公尺
-        else if(Math.sqrt(Math.pow(getLatitude-Latitude, 2.0) + Math.pow(getLongitude-Longitude, 2.0)) >2 ) {
+        else if (Math.sqrt(
+                Math.pow(
+                    getLatitude - Latitude,
+                    2.0
+                ) + Math.pow(getLongitude - Longitude, 2.0)
+            ) > 2
+        ) {
             Toast.makeText(this, "簽到失敗, 因為你不在附近", Toast.LENGTH_LONG).show()
         }
         // 時間超出預設deadline
-        else if((Integer.parseInt(times.get(Calendar.HOUR_OF_DAY).toString())>hour ) ||
-                ((Integer.parseInt(times.get(Calendar.HOUR_OF_DAY).toString())==hour &&
-                  Integer.parseInt(times.get(Calendar.MINUTE).toString())>min))) {
+        else if ((Integer.parseInt(times.get(Calendar.HOUR_OF_DAY).toString()) > hour) ||
+            ((Integer.parseInt(times.get(Calendar.HOUR_OF_DAY).toString()) == hour &&
+                    Integer.parseInt(times.get(Calendar.MINUTE).toString()) > min))
+        ) {
             Toast.makeText(this, "簽到失敗, 因為你遲到了", Toast.LENGTH_LONG).show()
-        }
-        else {
+        } else {
             // 儲存簽到資料
             saveData()
 
@@ -190,8 +211,8 @@ class MainActivity : AppCompatActivity(), LocationListener {
         val number: Int = Integer.parseInt(et_number.getText().toString())
         val name: String = et_name.getText().toString()
         editor.putInt(KEY_NUMBER, number)
-              .putString(KEY_NAME, name)
-              .commit()
+            .putString(KEY_NAME, name)
+            .apply()
 
         // toast message
         Toast.makeText(this, "簽到成功", Toast.LENGTH_LONG).show()
@@ -199,7 +220,8 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
     // ready to write by Snakey
     private fun look() {
-retrofitService.signUp(data).enqueue(object : Callback<String> {
+        data = SignUpRecord("1", "1", "1", "1", "1")
+        retrofitService.signUp(data).enqueue(object : Callback<String> {
             override fun onResponse(call: Call<String>, response: Response<String>) {
                 if (response.isSuccessful) {
                     //TODO:recyclerView
@@ -215,11 +237,8 @@ retrofitService.signUp(data).enqueue(object : Callback<String> {
             }
         })
     }
-    
+
 
     private fun postData() {
-        data = SignUpRecord("1", "1", "1", "1", "1")
-        
-        
     }
 }

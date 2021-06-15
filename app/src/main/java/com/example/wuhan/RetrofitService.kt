@@ -8,14 +8,12 @@ import retrofit2.http.Query
 interface RetrofitService {
     @GET("/checkByStudent")
     fun checkByStudent(
-        @Query("name") name: String,
-        @Query("room") room: String,
+        @Query("studentId") studentId: String
     ): Call<SignUpRecord>
 
     @GET("/checkByTeacher")
     fun checkByTeacher(
-        @Query("name") name: String,
-        @Query("room") room: String,
+        @Query("studentId") studentId: String
     ): Call<SignUpRecord>
 
     @POST("/signUp")

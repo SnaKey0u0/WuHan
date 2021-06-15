@@ -47,7 +47,7 @@ class checkAdapter : RecyclerView.Adapter<checkAdapter.viewHolder>() {
             val i: Int = adapterPosition
             //綁定當地變數與dataModel中的每個值
             name.text = records[i].name
-            room.text = records[i].room
+            room.text = records[i].id
             phone.text = records[i].phone
             location.text = records[i].location
             time.text = records[i].time
