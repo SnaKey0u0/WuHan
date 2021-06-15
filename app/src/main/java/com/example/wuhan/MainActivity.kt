@@ -14,6 +14,11 @@ import android.widget.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import java.util.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity(), LocationListener {
 
@@ -34,6 +39,15 @@ class MainActivity : AppCompatActivity(), LocationListener {
     var getLongitude = 0.0
     var hour:Int = 22
     var min:Int = 59
+  
+    private val baseUrl = "http://domainName/api/"
+    private val retrofitManager = Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(
+        GsonConverterFactory.create()
+    ).build()
+    private val retrofitService = retrofitManager.create(RetrofitService::class.java)
+    private lateinit var btnCheck: Button
+    private lateinit var btnSignUp: Button
+    private lateinit var data: SignUpRecord
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -185,6 +199,27 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
     // ready to write by Snakey
     private fun look() {
+retrofitService.signUp(data).enqueue(object : Callback<String> {
+            override fun onResponse(call: Call<String>, response: Response<String>) {
+                if (response.isSuccessful) {
+                    //TODO:recyclerView
+                } else {
+                    Toast.makeText(this@MainActivity, response.body(), Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
 
+            override fun onFailure(call: Call<String>, t: Throwable) {
+                Toast.makeText(this@MainActivity, "連線失敗，請稍後再試", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        })
+    }
+    
+
+    private fun postData() {
+        data = SignUpRecord("1", "1", "1", "1", "1")
+        
+        
     }
 }
