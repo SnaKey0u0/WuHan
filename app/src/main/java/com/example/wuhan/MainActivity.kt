@@ -46,10 +46,10 @@ class MainActivity : AppCompatActivity(), LocationListener {
     var Longitude = 121.0
     var getLatitude = 0.0
     var getLongitude = 0.0
-    var hour: Int = 22
+    var hour: Int = 23
     var min: Int = 59
 
-    private val baseUrl = "https://99be04669f0c.ngrok.io"
+    private val baseUrl = "http://140.121.197.130:5605"
     var gson = GsonBuilder()
         .setLenient()
         .create()
